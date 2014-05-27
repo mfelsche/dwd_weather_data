@@ -1,14 +1,17 @@
+from weather import is_dir, FullPaths
 import csv
 import sys
 import argparse
 import datetime
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipfile
 from metadata import get_metadata
 import json
 import os
 
+
 def get_date(val):
     return datetime.datetime(year=int(val[0:4], 10), month=int(val[4:6], 10), day=int(val[6:8], 10), hour=int(val[8:10], 10))
+
 
 def parse(infile):
     metadata_file, data = open_zip(infile)
@@ -19,8 +22,18 @@ def parse(infile):
             for row in parse_csv(metadata_file, datafile):
                 json_file.write(json.dumps(row))
                 json_file.write("\n")
-        os.unlink(data) # deleting extracted datafile
-    print("done")
+        os.unlink(data)  # deleting extracted datafile
+    print("done parsing {0}".format(infile.name))
+
+
+def parse_directory(indir):
+    for zipped in os.listdir(indir):
+        try:
+            with open(os.path.join(indir, zipped)) as f:
+                parse(f)
+        except BadZipfile:
+            print "{0} is not a zip file".format(f)
+
 
 def open_zip(infile):
     zip = ZipFile(infile, 'r')
@@ -78,7 +91,7 @@ def parse_data(infile, metadata):
             break
 def main():
     parser = argparse.ArgumentParser(description="Parse Weather data")
-    parser.add_argument('infile', type=file)
+    parser.add_argument('indir', action=FullPaths, type=is_dir)
     args = parser.parse_args(sys.argv[1:])
-    parse(args.infile)
+    parse_directory(args.indir)
     args.infile.close()

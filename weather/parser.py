@@ -1,7 +1,8 @@
+from data import Parsers
 import sys
 import argparse
 import json
-from data import Parsers
+
 
 def parse(temp_download_dir, station_id):
 

@@ -2,6 +2,7 @@
 data/
 *.egg
 *.egg-info
+downloads/
 bin/
 build/
 develop-eggs/

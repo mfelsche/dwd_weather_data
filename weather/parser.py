@@ -66,7 +66,7 @@ def parse_data(infile, metadata):
                 temp = float(row[5])
                 rel_feuchte = float(row[6])
                 yield {
-                    "date": date.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "date": int(1000*time.mktime(date.timetuple())),
                     "station_id": metadata['id'],
                     "station_name": metadata['name'],
                     "station_location": [metadata["lat"], metadata["lon"]],

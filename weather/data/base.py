@@ -68,7 +68,7 @@ class DWDDataSourceParser(object):
         if metadata is None:
             metadata = self.parse_metadata(metadata_file)
         try:
-            self.parse_data(data_file, metadata)
+            return self.parse_data(data_file, metadata)
         finally:
             os.unlink(data_file)
             os.unlink(metadata_file)

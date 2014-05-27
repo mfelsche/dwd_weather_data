@@ -23,6 +23,7 @@ from base import DWDDataSourceParser
 import time
 import csv
 
+
 class RainFallParser(DWDDataSourceParser):
 
     NAME = "rainfall"
@@ -40,10 +41,11 @@ class RainFallParser(DWDDataSourceParser):
             for row in reader:
                 i+=1
                 try:
-                    if len(row) > 6 and filter(None, row):
+                    if len(row) > 5 and filter(None, row):
                         date = self.get_date(row[1])
-                        temp = float(row[5])
-                        rel_feuchte = float(row[6])
+                        fallen = int(row[3])
+                        height = float(row[4])
+                        form = int(row[5])
                         yield {
                             "date": int(1000*time.mktime(date.timetuple())),
                             "station_id": metadata['id'],
@@ -51,8 +53,9 @@ class RainFallParser(DWDDataSourceParser):
                             "station_lat": metadata["lat"],
                             "station_lon": metadata["lon"],
                             "station_height": metadata["height"],
-                            "temp": temp,
-                            "humility": rel_feuchte
+                            "rainfall_fallen": fallen,
+                            "rainfall_height": height,
+                            "rainfall_form": form
                         }
                 except Exception as e:
                     print "row %d: %s" % (i, row)

@@ -20,12 +20,25 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from temp_humility import TemperatureHumilityParser
+<<<<<<< Updated upstream
 from sunshine_duration import SunshineParser
 
 
 class Parsers(object):
     parsers = [TemperatureHumilityParser,
                SunshineParser]
+=======
+from rainfall import RainFallParser
+from wind import WindParser
+
+
+class Parsers(object):
+    parsers = [
+        TemperatureHumilityParser,
+        RainFallParser,
+        WindParser
+    ]
+>>>>>>> Stashed changes
 
     @classmethod
     def parse(cls, station_id, download_dirs):

@@ -20,8 +20,6 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from base import DWDDataSourceParser
-import os
-import glob
 import csv
 import time
 
@@ -34,23 +32,9 @@ class TemperatureHumilityParser(DWDDataSourceParser):
     def get_name(cls):
         return cls.NAME
 
-    def parse(self, station_id):
-        f = None
-        glob_matches = glob.glob(os.path.join(self.downloaddir, "kl_" + station_id + "*.zip"))
-        if glob_matches:
-            f = glob_matches[0]
-        else:
-            print("could not find file for station %s in dir '%s'" % (station_id, self.downloaddir))
-            return
-
-        metadata_file, data_file = self.open_zip(f)
+    def parse_data(self, data_file, metadata):
         data = open(data_file, 'r')
         try:
-
-            metadata = self.get_metadata(station_id)
-            if metadata is None:
-                metadata = self.parse_metadata(metadata_file)
-
             reader = csv.reader(data, delimiter=',')
             _header = reader.next()
             i = 0
@@ -76,5 +60,3 @@ class TemperatureHumilityParser(DWDDataSourceParser):
                     print e
         finally:
             data.close()
-            os.unlink(data_file)
-            os.unlink(metadata_file)

@@ -20,8 +20,42 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from base import DWDDataSourceParser
-
+import time
+import csv
 
 class RainFallParser(DWDDataSourceParser):
-    def parse(self, station_id):
-        pass
+
+    NAME = "rainfall"
+
+    @classmethod
+    def get_name(cls):
+        return cls.NAME
+
+    def parse_data(self, data_file, metadata):
+        data = open(data_file, 'r')
+        try:
+            reader = csv.reader(data, delimiter=',')
+            _header = reader.next()
+            i = 0
+            for row in reader:
+                i+=1
+                try:
+                    if len(row) > 6 and filter(None, row):
+                        date = self.get_date(row[1])
+                        temp = float(row[5])
+                        rel_feuchte = float(row[6])
+                        yield {
+                            "date": int(1000*time.mktime(date.timetuple())),
+                            "station_id": metadata['id'],
+                            "station_name": metadata['name'],
+                            "station_lat": metadata["lat"],
+                            "station_lon": metadata["lon"],
+                            "station_height": metadata["height"],
+                            "temp": temp,
+                            "humility": rel_feuchte
+                        }
+                except Exception as e:
+                    print "row %d: %s" % (i, row)
+                    print e
+        finally:
+            data.close()

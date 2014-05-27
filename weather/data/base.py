@@ -21,6 +21,7 @@
 
 from zipfile import ZipFile
 import datetime
+import os, glob
 
 
 class DWDDataSourceParser(object):
@@ -53,6 +54,25 @@ class DWDDataSourceParser(object):
             else:
                 return {}
 
+    def parse(self, station_id):
+        f = None
+        glob_matches = glob.glob(os.path.join(self.downloaddir, "kl_" + station_id + "*.zip"))
+        if glob_matches:
+            f = glob_matches[0]
+        else:
+            print("could not find file for station %s in dir '%s'" % (station_id, self.downloaddir))
+            return
+
+        metadata_file, data_file = self.open_zip(f)
+        metadata = self.get_metadata(station_id)
+        if metadata is None:
+            metadata = self.parse_metadata(metadata_file)
+        try:
+            self.parse_data(data_file, metadata)
+        finally:
+            os.unlink(data_file)
+            os.unlink(metadata_file)
+
     def open_zip(self, infile):
         zip = ZipFile(infile, 'r')
         metadata = None
@@ -71,11 +91,12 @@ class DWDDataSourceParser(object):
     def get_date(self, val):
         return datetime.datetime(year=int(val[0:4], 10), month=int(val[4:6], 10), day=int(val[6:8], 10), hour=int(val[8:10], 10))
 
-    def get_name(self):
+    @classmethod
+    def get_name(cls):
         return "base"
 
     def parse(self, station_id):
         raise NotImplementedError()
 
-    def parse_data(self, infile):
+    def parse_data(self, infile, metadata):
         raise NotImplementedError()

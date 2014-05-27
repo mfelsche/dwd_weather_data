@@ -67,11 +67,7 @@ class DWDDataSourceParser(object):
         metadata = self.get_metadata(station_id)
         if metadata is None:
             metadata = self.parse_metadata(metadata_file)
-        try:
-            return self.parse_data(data_file, metadata)
-        finally:
-            os.unlink(data_file)
-            os.unlink(metadata_file)
+        return self.parse_data(data_file, metadata)
 
     def open_zip(self, infile):
         zip = ZipFile(infile, 'r')

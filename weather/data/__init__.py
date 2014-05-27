@@ -20,10 +20,12 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from temp_humility import TemperatureHumilityParser
+from sunshine_duration import SunshineParser
 
 
 class Parsers(object):
-    parsers = [TemperatureHumilityParser]
+    parsers = [TemperatureHumilityParser,
+               SunshineParser]
 
     @classmethod
     def parse(cls, station_id, download_dirs):

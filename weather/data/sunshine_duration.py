@@ -23,5 +23,36 @@ from base import DWDDataSourceParser
 
 
 class SunshineParser(DWDDataSourceParser):
-    def parse(self, station_id):
-        pass
+
+    NAME = "sun"
+
+    @classmethod
+    def get_name(cls):
+        return cls.NAME
+
+    def parse_data(self, data_file, metadata):
+        data = open(data_file, 'r')
+        try:
+            reader = csv.reader(data, delimiter=',')
+            _header = reader.next()
+            i = 0
+            for row in reader:
+                i+=1
+                try:
+                    if len(row) > 6 and filter(None, row):
+                        date = self.get_date(row[1])
+                        sunshine_hours = int(row[5])
+                        yield {
+                            "date": int(1000*time.mktime(date.timetuple())),
+                            "station_id": metadata['id'],
+                            "station_name": metadata['name'],
+                            "station_lat": metadata["lat"],
+                            "station_lon": metadata["lon"],
+                            "station_height": metadata["height"],
+                            "sunshine_hours": sunshine_hours
+                        }
+                except Exception as e:
+                    print "row %d: %s" % (i, row)
+                    print e
+        finally:
+            data.close()

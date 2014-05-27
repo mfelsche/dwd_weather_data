@@ -4,10 +4,11 @@ import argparse
 import json
 
 
-def parse(temp_download_dir, station_id):
+def parse(temp_download_dir, sun_download_dir, station_id):
 
     download_dirs = {
-        "temp": temp_download_dir
+        "temp": temp_download_dir,
+        "sun": sun_download_dir
     }
     with open(station_id + ".json", "w") as json_file:
         print("writing to", json_file.name)
@@ -20,6 +21,7 @@ def parse(temp_download_dir, station_id):
 def main():
     parser = argparse.ArgumentParser(description="Parse Weather data")
     parser.add_argument("--temp-download-dir", dest="temp_dir", type=str, default="downloads/temp")
+    parser.add_argument("--sunshine-download-dir", dest="sun_dir", type=str, default="downloads/sunshine")
     parser.add_argument("-s", "--station-id", dest="station_id", type=str)
     args = parser.parse_args(sys.argv[1:])
-    parse(args.temp_dir, args.station_id)
+    parse(args.temp_dir, args.sun_dir, args.station_id)

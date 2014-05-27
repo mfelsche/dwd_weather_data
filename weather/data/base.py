@@ -95,8 +95,5 @@ class DWDDataSourceParser(object):
     def get_name(cls):
         return "base"
 
-    def parse(self, station_id):
-        raise NotImplementedError()
-
     def parse_data(self, infile, metadata):
         raise NotImplementedError()

@@ -1,5 +1,5 @@
 *.py[co]
-data/
+/data/
 *.egg
 *.egg-info
 downloads/
@@ -24,3 +24,4 @@ deploy/doc
 deploy/files/supervisord.conf
 deploy/files/supervisord.init.d
 deploy/files/config.ini
+/.idea/

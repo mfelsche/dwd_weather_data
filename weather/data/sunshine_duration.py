@@ -20,6 +20,8 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from base import DWDDataSourceParser
+import csv
+import time
 
 
 class SunshineParser(DWDDataSourceParser):
@@ -41,7 +43,7 @@ class SunshineParser(DWDDataSourceParser):
                 try:
                     if len(row) > 6 and filter(None, row):
                         date = self.get_date(row[1])
-                        sunshine_hours = int(row[5])
+                        sunshine_hours = float(row[5])
                         yield {
                             "date": int(1000*time.mktime(date.timetuple())),
                             "station_id": metadata['id'],

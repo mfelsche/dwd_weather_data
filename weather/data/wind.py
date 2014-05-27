@@ -35,7 +35,7 @@ class WindParser(DWDDataSourceParser):
     def parse_data(self, data_file, metadata):
         data = open(data_file, 'r')
         try:
-            reader = csv.reader(data, delimiter=',')
+            reader = csv.reader(data, delimiter=';')
             _header = reader.next()
             i = 0
             for row in reader:

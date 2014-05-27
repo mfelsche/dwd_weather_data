@@ -7,6 +7,7 @@ from zipfile import ZipFile, BadZipfile
 from metadata import get_metadata
 import json
 import os
+import zlib
 
 
 def get_date(val):
@@ -31,7 +32,7 @@ def parse_directory(indir):
         try:
             with open(os.path.join(indir, zipped)) as f:
                 parse(f)
-        except BadZipfile:
+        except (BadZipfile, zlib.error):
             print "{0} is not a zip file".format(f)
 
 
@@ -57,14 +58,19 @@ def parse_csv(meta_infile, datafile):
 def parse_metadata(infile):
     infile.readline()
     header = infile.readline()
-    row = [ row.strip() for row in infile.readline().split(";") ]
-    return {
-        "id": row[0],
-        "height": int(row[1]),
-        "lat": float(row[2]),
-        "lon": float(row[3]),
-        "name": unicode(row[6].strip(), "iso8859")
-    }
+    row = [row.strip() for row in infile.readline().split(";") if row]
+    try:
+        if row:
+            return {
+                "id": row[0],
+                "height": int(row[1]),
+                "lat": float(row[2]),
+                "lon": float(row[3]),
+                "name": unicode(row[6].strip(), "iso8859")
+            }
+    except Exception as e:
+        print e
+        print row
 
 def parse_data(infile, metadata):
     reader = csv.reader(infile, delimiter=',')
@@ -94,4 +100,3 @@ def main():
     parser.add_argument('indir', action=FullPaths, type=is_dir)
     args = parser.parse_args(sys.argv[1:])
     parse_directory(args.indir)
-    args.infile.close()

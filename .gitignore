@@ -1,4 +1,5 @@
 *.py[co]
+data/
 *.egg
 *.egg-info
 bin/

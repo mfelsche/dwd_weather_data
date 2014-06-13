@@ -23,6 +23,7 @@ from temp_humility import TemperatureHumilityParser
 from sunshine_duration import SunshineParser
 from rainfall import RainFallParser
 from wind import WindParser
+from earth_ground import EarthGroundParser
 
 
 class Parsers(object):
@@ -30,7 +31,8 @@ class Parsers(object):
         TemperatureHumilityParser,
         RainFallParser,
         WindParser,
-        SunshineParser
+        SunshineParser,
+        EarthGroundParser
     ]
 
     @classmethod

@@ -18,10 +18,10 @@
 # However, if you have executed another commercial license agreement
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
-
+from __future__ import print_function
 import csv
 import time
-from base import DWDDataSourceParser
+from .base import DWDDataSourceParser
 
 
 class WindParser(DWDDataSourceParser):
@@ -33,8 +33,7 @@ class WindParser(DWDDataSourceParser):
         return cls.NAME
 
     def parse_data(self, data_file, metadata):
-        data = open(data_file, 'r')
-        try:
+        with open(data_file, 'r') as data:
             reader = csv.reader(data, delimiter=';')
             _header = reader.next()
             i = 0
@@ -56,7 +55,5 @@ class WindParser(DWDDataSourceParser):
                             "wind_direction": direction
                         }
                 except Exception as e:
-                    print "row %d: %s" % (i, row)
-                    print e
-        finally:
-            data.close()
+                    print("row %d: %s" % (i, row))
+                    print(e)

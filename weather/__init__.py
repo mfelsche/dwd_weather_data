@@ -11,9 +11,19 @@ class FullPaths(argparse.Action):
 
 
 def is_dir(dirname):
-    """Checks if a path is an actual directory"""
+    """
+    Checks if a path is an actual directory.
+    Tries to create the directory.
+    """
     if not os.path.isdir(dirname):
-        msg = "{0} is not a directory".format(dirname)
-        raise argparse.ArgumentTypeError(msg)
+        if not os.path.exists(dirname):
+            try:
+                os.makedirs(dirname)
+            except Exception as e:
+                raise argparse.ArgumentTypeError(
+                    "could not create directory {0}".format(dirname))
+        else:
+            msg = "{0} exists but is not a directory".format(dirname)
+            raise argparse.ArgumentTypeError(msg)
     else:
         return dirname

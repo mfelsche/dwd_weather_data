@@ -21,7 +21,8 @@
 
 from zipfile import ZipFile
 import datetime
-import os, glob
+import os
+import glob
 
 
 class DWDDataSourceParser(object):
@@ -47,7 +48,7 @@ class DWDDataSourceParser(object):
                     "height": int(row[1]),
                     "lat": float(row[2]),
                     "lon": float(row[3]),
-                    "name": unicode(row[6].strip(), "iso8859")
+                    "name": row[6].strip()
                 }
                 self.METADATA_CACHE[metadata["id"]] = metadata
                 return metadata

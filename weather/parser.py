@@ -2,7 +2,7 @@ from data import Parsers
 import sys
 import argparse
 import json
-from data import TemperatureHumilityParser, RainFallParser, WindParser, SunshineParser
+from data import TemperatureHumilityParser, RainFallParser, WindParser, SunshineParser, EarthGroundParser
 
 
 def parse(download_dirs, station_id):
@@ -20,11 +20,13 @@ def main():
     parser.add_argument("--sunshine-download-dir", dest="sun_dir", type=str, default="downloads/sunshine")
     parser.add_argument("--rainfall-download-dir", dest="rain_dir", type=str, default="downloads/rainfall")
     parser.add_argument("--wind-download-dir", dest="wind_dir", type=str, default="downloads/wind")
+    parser.add_argument("--earth-download-dir", dest="earth_dir", type=str, default="downloads/earth_ground")
     parser.add_argument("-s", "--station-id", dest="station_id", type=str)
     args = parser.parse_args(sys.argv[1:])
     parse({
         TemperatureHumilityParser.NAME: args.temp_dir,
         RainFallParser.NAME: args.rain_dir,
         WindParser.NAME: args.wind_dir,
-        SunshineParser.NAME: args.sun_dir
+        SunshineParser.NAME: args.sun_dir,
+        EarthGroundParser.NAME: args.earth_dir
     }, args.station_id)

@@ -18,8 +18,8 @@
 # However, if you have executed another commercial license agreement
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
-
-from base import DWDDataSourceParser
+from __future__ import print_function
+from .base import DWDDataSourceParser
 import csv
 import time
 
@@ -33,8 +33,7 @@ class SunshineParser(DWDDataSourceParser):
         return cls.NAME
 
     def parse_data(self, data_file, metadata):
-        data = open(data_file, 'r')
-        try:
+        with open(data_file, 'r') as data:
             reader = csv.reader(data, delimiter=',')
             _header = reader.next()
             i = 0
@@ -54,7 +53,5 @@ class SunshineParser(DWDDataSourceParser):
                             "sunshine_hours": sunshine_hours
                         }
                 except Exception as e:
-                    print "row %d: %s" % (i, row)
-                    print e
-        finally:
-            data.close()
+                    print("row %d: %s" % (i, row))
+                    print(e)

@@ -1,6 +1,5 @@
 import os
 import re
-import ConfigParser
 
 from setuptools import setup, find_packages
 
@@ -15,8 +14,9 @@ else:
 
 def get_versions():
     """picks the versions from version.cfg and returns them as dict"""
+    from six.moves import configparser
     versions_cfg = os.path.join(os.path.dirname(__file__), 'versions.cfg')
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.optionxform = str
     config.readfp(open(versions_cfg))
     return dict(config.items('versions'))
@@ -38,6 +38,8 @@ def nailed_requires(requirements, pat=re.compile(r'^(.+)(\[.+\])?$')):
     return res
 
 requires = [
+    'six',
+    'urllib3'
 ]
 
 setup(name='weather',

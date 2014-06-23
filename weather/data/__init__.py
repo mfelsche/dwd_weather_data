@@ -19,11 +19,11 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from temp_humility import TemperatureHumilityParser
-from sunshine_duration import SunshineParser
-from rainfall import RainFallParser
-from wind import WindParser
-from earth_ground import EarthGroundParser
+from .temp_humility import TemperatureHumilityParser
+from .sunshine_duration import SunshineParser
+from .rainfall import RainFallParser
+from .wind import WindParser
+from .earth_ground import EarthGroundParser
 
 
 class Parsers(object):

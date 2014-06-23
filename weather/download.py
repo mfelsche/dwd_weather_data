@@ -102,7 +102,7 @@ options are:
             format='[%(levelname)s %(asctime)s] %(message)s',
             datefmt='%Y/%m/%d %H:%M:%S',
             stream=sys.stdout,
-            level=logging.DEBUG)
+            level=level)
     try:
         download(args.types, args.download_dir)
         sys.exit(0)

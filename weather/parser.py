@@ -1,14 +1,17 @@
-from data import Parsers
+
 import sys
+import traceback
+import logging
 import argparse
 import json
-from data import TemperatureHumilityParser, RainFallParser, WindParser, SunshineParser, EarthGroundParser
+from data import Parsers
+from weather import FullPaths, is_dir
 
 
-def parse(download_dirs, station_id):
+def parse(download_dir, station_id=None):
     with open(station_id + ".json", "w") as json_file:
         print("writing to", json_file.name)
-        for row in Parsers.parse(station_id, download_dirs):
+        for row in Parsers.parse(station_id, download_dir):
             json_file.write(json.dumps(row))
             json_file.write("\n")
     print("done")
@@ -16,17 +19,24 @@ def parse(download_dirs, station_id):
 
 def main():
     parser = argparse.ArgumentParser(description="Parse Weather data")
-    parser.add_argument("--temp-download-dir", dest="temp_dir", type=str, default="downloads/temp")
-    parser.add_argument("--sunshine-download-dir", dest="sun_dir", type=str, default="downloads/sunshine")
-    parser.add_argument("--rainfall-download-dir", dest="rain_dir", type=str, default="downloads/rainfall")
-    parser.add_argument("--wind-download-dir", dest="wind_dir", type=str, default="downloads/wind")
-    parser.add_argument("--earth-download-dir", dest="earth_dir", type=str, default="downloads/earth_ground")
+    parser.add_argument("--download-dir", dest="download_dir", action=FullPaths,
+                        type=is_dir, help="the directory the data sources were downloaded into",
+                        default=os.path.join(os.path.dirname(__file__), "..", "downloads"))
     parser.add_argument("-s", "--station-id", dest="station_id", type=str)
+    parser.add_argument('-d', '--debug', dest="debug", action="store_true")
     args = parser.parse_args(sys.argv[1:])
-    parse({
-        TemperatureHumilityParser.NAME: args.temp_dir,
-        RainFallParser.NAME: args.rain_dir,
-        WindParser.NAME: args.wind_dir,
-        SunshineParser.NAME: args.sun_dir,
-        EarthGroundParser.NAME: args.earth_dir
-    }, args.station_id)
+    if args.debug:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    logging.basicConfig(
+            format='[%(levelname)s %(asctime)s] %(message)s',
+            datefmt='%Y/%m/%d %H:%M:%S',
+            stream=sys.stdout,
+            level=level)
+    try:
+        parse(args.download_dir, args.station_id)
+        sys.exit(0)
+    except Exception:
+        traceback.print_exc()
+        sys.exit(1)

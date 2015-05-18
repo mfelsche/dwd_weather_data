@@ -71,7 +71,7 @@ class DWDDataSourceParser(object):
             "stundenwerte_*_{}*.zip".format(station_id))
         )
         if not glob_matches:
-            logger.error("could not find file for station %s in dir '%s'" % (station_id, os.path.join(self.download_dir, self.get_name())))
+            logger.debug("could not find file for station %s in dir '%s'" % (station_id, os.path.join(self.download_dir, self.get_name())))
             return []
 
         metadata_file, data_files = self.open_zip(glob_matches)

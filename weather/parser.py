@@ -24,11 +24,18 @@ def parse(download_dir, stations=None, out_dir=DEFAULT_OUT_DIR):
         futures = []
         for station_id in stations:
             futures.append(
-                executor.submit(parse_station, download_dir, station_id, out_dir)
+                executor.submit(run_parse_station, download_dir, station_id, out_dir)
             )
         for future in futures:
             future.result()
     logger.info("done")
+
+
+def run_parse_station(*args):
+    try:
+        return parse_station(*args)
+    except Exception:
+        raise Exception("".join(traceback.format_exception(*sys.exc_info())))
 
 
 def parse_station(download_dir, station_id, out_dir):

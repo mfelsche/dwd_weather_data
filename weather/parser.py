@@ -25,7 +25,7 @@ def parse(download_dir, stations=None, out_dir=DEFAULT_OUT_DIR):
         for station_id in stations:
             futures[station_id] = executor.submit(run_parse_station, download_dir, station_id, out_dir)
 
-        for station_id, future in futures:
+        for station_id, future in futures.items():
             try:
                 future.result()
             except:

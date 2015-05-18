@@ -55,7 +55,8 @@ setup(name='weather',
       entry_points={
          'console_scripts': [
              'parse_data = weather.parser:main',
-             'download = weather.download:main'
+             'download = weather.download:main',
+             'stations = weather.stations:main'
          ]
       },
 )

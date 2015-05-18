@@ -7,7 +7,7 @@
 # you may not use this file except in compliance with the License.  You may
 # obtain a copy of the License at
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -21,19 +21,16 @@
 from .base import DWDDataSourceParser
 
 
-class WindParser(DWDDataSourceParser):
+class CloudinessParser(DWDDataSourceParser):
+    NAME = "cloudiness"
 
-    NAME = "wind"
-
-    @classmethod
     def get_name(cls):
         return cls.NAME
 
     def expected_columns(self):
-        return 6
+        return 4
 
     def extract_data(self, row):
         return {
-            "wind_speed": self.get_float(row[-3]),  # in m/sec
-            "wind_direction": self.get_int(row[-2])  # Richtungsangaben in 36-teiliger Windrose
+            "cloudiness": self.get_int(row[3])  # degree
         }

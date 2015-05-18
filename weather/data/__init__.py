@@ -19,31 +19,46 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from .temp_humility import TemperatureHumilityParser
-from .sunshine_duration import SunshineParser
-from .rainfall import RainFallParser
+from .air_temperature import AirTemperatureParser
+from .cloudiness import CloudinessParser
+from .sun import SunshineParser
+from .precipitation import PrecipitationParser
 from .wind import WindParser
-from .earth_ground import EarthGroundParser
+from .soil_temperature import SoilTemperatureParser
+from .pressure import PressureParser
+from .solar import SolarRadiationParser
+import re
+import os
+
+DATA_FILE_PATTERN = re.compile(r'^stundenwerte_[A-Z0-9]+_(.{5}).*?\.zip$')
+
+
+def station_file_pattern(station_id):
+    return re.compile(r'^stundenwerte_[A-Z0-9]+_(' + station_id + ').*?\.zip$')
 
 
 class Parsers(object):
+    # TODO: new parsers
     parsers = [
-        TemperatureHumilityParser,
-        RainFallParser,
-        WindParser,
+        AirTemperatureParser,
+        CloudinessParser,
+        PrecipitationParser,
+        PressureParser,
+        SoilTemperatureParser,
+        SolarRadiationParser,
         SunshineParser,
-        EarthGroundParser
+        WindParser,
     ]
 
     @classmethod
-    def parse(cls, station_id, download_dirs):
+    def parse(cls, download_dir, station_id):
         data = {}
+        work_dir = os.path.join(os.path.dirname(download_dir), "var")
         for parser_class in cls.parsers:
-            parser = parser_class(download_dirs[parser_class.get_name()])
+            parser = parser_class(download_dir, work_dir)
             for datum in parser.parse(station_id):
                 value = data.setdefault(datum["date"], {})
                 value.update(datum)
 
         for value in data.values():
             yield value
-

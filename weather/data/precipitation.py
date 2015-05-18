@@ -7,7 +7,7 @@
 # you may not use this file except in compliance with the License.  You may
 # obtain a copy of the License at
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -18,14 +18,13 @@
 # However, if you have executed another commercial license agreement
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
+
 from .base import DWDDataSourceParser
 
 
-class WindParser(DWDDataSourceParser):
+class PrecipitationParser(DWDDataSourceParser):
+    NAME = "precipitation"
 
-    NAME = "wind"
-
-    @classmethod
     def get_name(cls):
         return cls.NAME
 
@@ -33,7 +32,11 @@ class WindParser(DWDDataSourceParser):
         return 6
 
     def extract_data(self, row):
+        fallen = bool(int(row[3]))
+        height = self.get_float(row[4])
+        form = self.get_int(row[5])
         return {
-            "wind_speed": self.get_float(row[-3]),  # in m/sec
-            "wind_direction": self.get_int(row[-2])  # Richtungsangaben in 36-teiliger Windrose
+            "rainfall_fallen": fallen,
+            "rainfall_height": height,
+            "rainfall_form": form
         }

@@ -1,7 +1,35 @@
 import argparse
 import os
+import os.path
+from ftplib import FTP
 
 __version__ = '0.0.0'
+
+
+TYPES = [
+    "precipitation",
+    "sun",
+    "air_temperature",
+    "solar",
+    "soil_temperature",
+    "cloudiness",
+    "pressure",
+    "wind"
+]
+
+CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "etc"))
+DEFAULT_DOWNLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "downloads"))
+DEFAULT_OUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "out"))
+
+FTP_SERVER = "ftp-cdc.dwd.de"
+FTP_BASE_DIR = "/pub/CDC/observations_germany/climate/hourly"
+
+
+def init_ftp():
+    ftp = FTP(FTP_SERVER)
+    ftp.login()
+    ftp.cwd(FTP_BASE_DIR)
+    return ftp
 
 
 class FullPaths(argparse.Action):

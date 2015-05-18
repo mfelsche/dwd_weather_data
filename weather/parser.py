@@ -1,28 +1,58 @@
 
 import sys
+import os
 import traceback
 import logging
 import argparse
+import gzip
 import json
-from data import Parsers
-from weather import FullPaths, is_dir
+from .data import Parsers
+from weather import FullPaths, is_dir, DEFAULT_DOWNLOAD_DIR, DEFAULT_OUT_DIR
+from concurrent.futures import ProcessPoolExecutor
+from .stations import get_stations
+
+logger = logging.getLogger(__name__)
 
 
-def parse(download_dir, station_id=None):
-    with open(station_id + ".json", "w") as json_file:
-        print("writing to", json_file.name)
-        for row in Parsers.parse(station_id, download_dir):
-            json_file.write(json.dumps(row))
-            json_file.write("\n")
-    print("done")
+def parse(download_dir, stations=None, out_dir=DEFAULT_OUT_DIR):
+    if not stations:
+        logger.info("no stations given")
+        return
+
+    os.makedirs(out_dir, exist_ok=True)
+    with ProcessPoolExecutor(max_workers=10) as executor:
+        futures = []
+        for station_id in stations:
+            futures.append(
+                executor.submit(parse_station, download_dir, station_id, out_dir)
+            )
+        for future in futures:
+            future.result()
+    logger.info("done")
+
+
+def parse_station(download_dir, station_id, out_dir):
+    outfile = os.path.join(out_dir, station_id + ".json.gz")
+    with gzip.open(outfile, "w") as json_file:
+        logger.debug("writing to {0}".format(json_file.name))
+        for row in Parsers.parse(download_dir, station_id):
+            if row:
+                json_file.write(json.dumps(row).encode("utf-8"))
+                json_file.write(b"\n")
+            else:
+                continue
+    return outfile
 
 
 def main():
     parser = argparse.ArgumentParser(description="Parse Weather data")
     parser.add_argument("--download-dir", dest="download_dir", action=FullPaths,
                         type=is_dir, help="the directory the data sources were downloaded into",
-                        default=os.path.join(os.path.dirname(__file__), "..", "downloads"))
-    parser.add_argument("-s", "--station-id", dest="station_id", type=str)
+                        default=DEFAULT_DOWNLOAD_DIR)
+    parser.add_argument("--out-dir", dest="out_dir",
+                        type=str, help="the output directory",
+                        default=DEFAULT_OUT_DIR)
+    parser.add_argument("--station", dest="stations", type=str, nargs='*', help="the station to parse")
     parser.add_argument('-d', '--debug', dest="debug", action="store_true")
     args = parser.parse_args(sys.argv[1:])
     if args.debug:
@@ -35,7 +65,11 @@ def main():
             stream=sys.stdout,
             level=level)
     try:
-        parse(args.download_dir, args.station_id)
+        stations = args.stations
+        if not stations:
+            stations = get_stations(args.download_dir)
+
+        parse(args.download_dir, stations, args.out_dir)
         sys.exit(0)
     except Exception:
         traceback.print_exc()

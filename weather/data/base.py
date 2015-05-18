@@ -53,7 +53,7 @@ class DWDDataSourceParser(object):
             if row:
                 metadata = {
                     "id": row[0],
-                    "height": int(row[1]),
+                    "height": int(row[1] or 0),
                     "lat": float(row[2]),
                     "lon": float(row[3]),
                     "name": row[6].strip()

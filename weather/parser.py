@@ -21,13 +21,15 @@ def parse(download_dir, stations=None, out_dir=DEFAULT_OUT_DIR):
 
     os.makedirs(out_dir, exist_ok=True)
     with ProcessPoolExecutor(max_workers=10) as executor:
-        futures = []
+        futures = {}
         for station_id in stations:
-            futures.append(
-                executor.submit(run_parse_station, download_dir, station_id, out_dir)
-            )
-        for future in futures:
-            future.result()
+            futures[station_id] = executor.submit(run_parse_station, download_dir, station_id, out_dir)
+
+        for station_id, future in futures:
+            try:
+                future.result()
+            except:
+                logger.error("error handling station %s", station_id, exc_info=True)
     logger.info("done")
 
 

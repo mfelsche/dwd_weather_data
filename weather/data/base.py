@@ -21,7 +21,6 @@
 
 from zipfile import ZipFile, BadZipfile
 import datetime
-import time
 import os
 import glob
 import csv
@@ -53,9 +52,9 @@ class DWDDataSourceParser(object):
             if row:
                 metadata = {
                     "id": row[0],
-                    "height": int(row[1] or 0),
-                    "lat": float(row[2]),
-                    "lon": float(row[3]),
+                    "height": self.get_int(row[1]),
+                    "lat": self.get_float(row[2]),
+                    "lon": self.get_float(row[3]),
                     "name": row[6].strip()
                 }
                 self.METADATA_CACHE[metadata["id"]] = metadata
@@ -115,14 +114,22 @@ class DWDDataSourceParser(object):
 
     @staticmethod
     def get_float(val):
-        fval = float(val)
+        try:
+            fval = float(val)
+        except ValueError as e:
+            logger.debug("error converting '%s' to float", val)
+            return None
         if fval == -999:
             return None
         return fval
 
     @staticmethod
     def get_int(val):
-        ival = int(val)
+        try:
+            ival = int(val)
+        except ValueError as e:
+            logger.debug("error converting '%s' to int", val)
+            return None
         if ival == -999:
             return None
         return ival
@@ -147,7 +154,7 @@ class DWDDataSourceParser(object):
                             if len(row) >= self.expected_columns() and filter(None, row):
                                 date = self.get_date(row[1])
                                 data = self.extract_data(row)
-                                data["date"] = int(1000*time.mktime(date.timetuple()))
+                                data["date"] = int(date.timestamp() * 1000)
                                 if self.include_metadata:
                                     data.update({
                                         "station_id": metadata['id'],

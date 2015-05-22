@@ -39,7 +39,8 @@ def nailed_requires(requirements, pat=re.compile(r'^(.+)(\[.+\])?$')):
 
 requires = [
     'six',
-    'urllib3'
+    'urllib3',
+    'pytz'
 ]
 
 setup(name='weather',

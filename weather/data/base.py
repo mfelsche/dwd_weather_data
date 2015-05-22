@@ -21,11 +21,15 @@
 
 from zipfile import ZipFile, BadZipfile
 import datetime
+from pytz import utc as UTC
 import os
 import glob
 import csv
 import logging
 logger = logging.getLogger(__name__)
+
+
+EPOCH = datetime.datetime(1970, 1, 1, tzinfo=UTC)
 
 
 class DWDDataSourceParser(object):
@@ -35,35 +39,45 @@ class DWDDataSourceParser(object):
     RECENT = "recent"
     HISTORICAL = "historical"
 
-    METADATA_CACHE = {}
-
-    def __init__(self, download_dir, work_dir, include_metadata=True):
+    def __init__(self, download_dir, work_dir, stations_metadata, normalized=False):
         self.download_dir = download_dir
+        self.stations_metadata = stations_metadata
         self.workdir = os.path.join(work_dir, self.get_name())
-        self.include_metadata = include_metadata
+        self.include_metadata = not normalized
 
-    def get_metadata(self, station_id):
-        return self.METADATA_CACHE.get(station_id)
+    def get_metadata(self, station_id, infile):
+        station_metadata = None
+        if station_id not in self.stations_metadata:
 
-    def parse_metadata(self, infile):
-        with open(infile, 'r', encoding='iso8859') as md_file:
-            _header = md_file.readline()
-            row = [elem.strip() for elem in md_file.readline().split(";") if elem]
-            if row:
-                metadata = {
-                    "id": row[0],
-                    "height": self.get_int(row[1]),
-                    "lat": self.get_float(row[2]),
-                    "lon": self.get_float(row[3]),
-                    "name": row[6].strip()
-                }
-                self.METADATA_CACHE[metadata["id"]] = metadata
-                return metadata
-            else:
-                return {}
+            with open(infile, 'r', encoding='iso8859') as md_file:
+                reader = csv.DictReader(md_file,
+                                        delimiter=';',
+                                        fieldnames=["id", "height", "lon", "lat", "from_date", "to_date", "name"])
+                next(reader)  # skip header
+                for row in reader:
+                    if not row:
+                        continue
+                    id = row["id"].strip()
+                    name = row["name"].strip()
+                    from_date = self.get_date(row["from_date"].strip(), with_hour=False)
+                    to_date = self.get_date(row["to_date"].strip(), with_hour=False)
+                    metadata = {
+                        "station_id": id,
+                        "station_height": self.get_int(row["height"].strip()),
+                        "position": [
+                            self.get_float(row["lon"].strip()),  # lon
+                            self.get_float(row["lat"].strip())   # lat
+                        ],
+                        "station_name": name
+                    }
+                    station_metadata = self.stations_metadata.get_or_create(station_id)
+                    station_metadata.name = name
+                    station_metadata.add(from_date, to_date, metadata)
+        else:
+            station_metadata = self.stations_metadata[station_id]
+        return station_metadata
 
     def parse(self, station_id):
-        f = None
         glob_matches = glob.glob(os.path.join(
             self.download_dir,
             self.get_name(),
@@ -74,12 +88,10 @@ class DWDDataSourceParser(object):
             return []
 
         metadata_file, data_files = self.open_zip(glob_matches)
-        metadata = self.get_metadata(station_id)
-        if metadata is None:
-            try:
-                metadata = self.parse_metadata(metadata_file)
-            finally:
-                os.unlink(metadata_file)
+        try:
+            metadata = self.get_metadata(station_id, metadata_file)
+        finally:
+            os.unlink(metadata_file)
         return self.parse_data(data_files, metadata)
 
     def open_zip(self, infiles):
@@ -109,8 +121,16 @@ class DWDDataSourceParser(object):
         return metadata, data_files
 
     @staticmethod
-    def get_date(val):
-        return datetime.datetime(year=int(val[0:4], 10), month=int(val[4:6], 10), day=int(val[6:8], 10), hour=int(val[8:10], 10))
+    def get_date(val, with_hour=True):
+        if not val:
+            return None
+        hour_value = 0
+        if with_hour:
+            hour_value = int(val[8:10], 10)
+        # TODO: check if UTC is right for every datum
+        dt = datetime.datetime(year=int(val[0:4], 10), month=int(val[4:6], 10), day=int(val[6:8], 10), hour=hour_value, tzinfo=UTC)
+        return int((dt - EPOCH).total_seconds() * 1000)
+
 
     @staticmethod
     def get_float(val):
@@ -154,14 +174,14 @@ class DWDDataSourceParser(object):
                             if len(row) >= self.expected_columns() and filter(None, row):
                                 date = self.get_date(row[1])
                                 data = self.extract_data(row)
-                                data["date"] = int(date.timestamp() * 1000)
+                                data["date"] = date
+                                data["station_id"] = metadata.id
                                 if self.include_metadata:
-                                    data.update({
-                                        "station_id": metadata['id'],
-                                        "station_name": metadata['name'],
-                                        "position": [metadata["lon"], metadata["lat"]],
-                                        "station_height": metadata["height"],
-                                    })
+                                    date_metadata = metadata.get_by_date(date)
+                                    if date_metadata:
+                                        data.update(date_metadata)
+                                    else:
+                                        logger.error("no metadata found for station %s and date %s", metadata.id, date)
                                 yield data
                         except Exception as e:
                             logger.error("Error during {}, row {}: {}".format(self.get_name(), i, row))

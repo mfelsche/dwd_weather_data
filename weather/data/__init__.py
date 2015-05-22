@@ -27,6 +27,7 @@ from .wind import WindParser
 from .soil_temperature import SoilTemperatureParser
 from .pressure import PressureParser
 from .solar import SolarRadiationParser
+from .station_metadata import StationsMetadata
 import re
 import os
 
@@ -38,7 +39,6 @@ def station_file_pattern(station_id):
 
 
 class Parsers(object):
-    # TODO: new parsers
     parsers = [
         AirTemperatureParser,
         CloudinessParser,
@@ -51,14 +51,18 @@ class Parsers(object):
     ]
 
     @classmethod
-    def parse(cls, download_dir, station_id):
+    def parse(cls, download_dir, station_id, normalized):
         data = {}
+        metadata = StationsMetadata()
         work_dir = os.path.join(os.path.dirname(download_dir), "var")
+
         for parser_class in cls.parsers:
-            parser = parser_class(download_dir, work_dir)
+            parser = parser_class(download_dir, work_dir, metadata, normalized=normalized)
             for datum in parser.parse(station_id):
                 value = data.setdefault(datum["date"], {})
                 value.update(datum)
 
-        for value in data.values():
-            yield value
+        return {
+            "data": data.values(),
+            "metadata": metadata
+        }

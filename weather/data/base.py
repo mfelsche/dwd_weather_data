@@ -178,10 +178,9 @@ class DWDDataSourceParser(object):
                                 data["station_id"] = metadata.id
                                 if self.include_metadata:
                                     date_metadata = metadata.get_by_date(date)
-                                    if date_metadata:
-                                        data.update(date_metadata)
-                                    else:
-                                        logger.error("no metadata found for station %s and date %s", metadata.id, date)
+                                    if not date_metadata:
+                                        date_metadata = metadata.any()
+                                    data.update(date_metadata)
                                 yield data
                         except Exception as e:
                             logger.error("Error during {}, row {}: {}".format(self.get_name(), i, row))

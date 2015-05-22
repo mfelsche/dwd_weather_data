@@ -59,8 +59,9 @@ class Parsers(object):
         for parser_class in cls.parsers:
             parser = parser_class(download_dir, work_dir, metadata, normalized=normalized)
             for datum in parser.parse(station_id):
-                value = data.setdefault(datum["date"], {})
-                value.update(datum)
+                if datum:
+                    value = data.setdefault(datum["date"], {})
+                    value.update(datum)
 
         return {
             "data": data.values(),

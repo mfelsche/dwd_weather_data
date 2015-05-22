@@ -98,7 +98,7 @@ class StationMetadata(UserDict):
 
     def any(self):
         if self:
-            return self.values()[0]
+            return next(iter(self.values()))
         else:
             return None
 
@@ -110,7 +110,9 @@ class Dates(object):
         self.to_date = to_date
 
     def __contains__(self, date):
-        return self.from_date <= date <= self.to_date
+        gte = self.from_date is None or self.from_date <= date
+        lte = self.to_date is None or date <= self.to_date
+        return gte and lte
 
     def __eq__(self, other):
         return self.from_date == other.from_date and self.to_date == other.to_date

@@ -61,13 +61,20 @@ class DWDDataSourceParser(object):
                     name = row["name"].strip()
                     from_date = self.get_date(row["from_date"].strip(), with_hour=False)
                     to_date = self.get_date(row["to_date"].strip(), with_hour=False)
+                    lon = self.get_float(row["lon"].strip())
+                    lat = self.get_float(row["lat"].strip())
+                    if None in (lon, lat):
+                        position = None
+                    else:
+                        position = [
+                            lon,
+                            lat
+                        ]
+
                     metadata = {
                         "station_id": id,
                         "station_height": self.get_int(row["height"].strip()),
-                        "position": [
-                            self.get_float(row["lon"].strip()),  # lon
-                            self.get_float(row["lat"].strip())   # lat
-                        ],
+                        "position": position,
                         "station_name": name
                     }
                     station_metadata = self.stations_metadata.get_or_create(station_id)

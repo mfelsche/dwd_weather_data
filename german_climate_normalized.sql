@@ -18,8 +18,8 @@ with (number_of_replicas=0, refresh_interval=0); -- settings for import purposes
 -- the actual measurement
 -- might not contain data for every possible column
 CREATE TABLE german_climate.data (
-  date timestamp,
-  station_id string,
+  date timestamp primary key,
+  station_id string primary key,
   temp float, -- temperature in °C
   humility double, -- relative humulity in percent
   cloudiness int,  -- 0 (cloudless)

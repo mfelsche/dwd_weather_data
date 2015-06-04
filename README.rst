@@ -81,6 +81,18 @@ station ids (which can be obtained from the names of the downloaded files)::
     and ``station_locations`` files will contain only data for the converted stations.
     Old data will be overridden.
 
+Data
+====
+
+We got 236 mio. rows (235603810), each containing one or more measurement at one station
+at one point in time.
+
+Measurements were taken at 1455 different stations, which might have changed locations
+over time, so we have 3946 different locations for those stations in different time periods.
+
+The earliest measurements have been taken at ``Thu Jan 01 03:00:00 UTC 1891``
+in Marburg-Cappel, Kiel-Kronshagen and Kassel-Harleshausen.
+
 Schemas
 =======
 
@@ -160,8 +172,8 @@ See ``german_climate_normalized.sql``.
     -- the actual measurement
     -- might not contain data for every possible column
     CREATE TABLE german_climate.data (
-      date timestamp,
-      station_id string,
+      date timestamp primary key,
+      station_id string primary key,
       temp float, -- temperature in °C
       humility double, -- relative humulity in percent
       cloudiness int,  -- 0 (cloudless)

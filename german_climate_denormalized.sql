@@ -35,4 +35,4 @@ CREATE TABLE german_climate_denormalized (
   sun_zenith float, -- sun zenith in degree
   wind_speed double, -- wind speed in m/sec
   wind_direction int -- wind direction given in 36-part land-spout
-) clustered by (station_id) with (number_of_replicas=0, refresh_interval=0);
+) clustered by (station_id) into 12 shards with (number_of_replicas=0, refresh_interval=0);

@@ -85,7 +85,7 @@ Data
 ====
 
 We got 236 mio. rows (235603810), each containing one or more measurement at one station
-at one point in time.
+at one point in time. The amount of data might increase once the DWD will add new data.
 
 Measurements were taken at 1455 different stations, which might have changed locations
 over time, so we have 3946 different locations for those stations in different time periods.

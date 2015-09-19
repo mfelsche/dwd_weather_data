@@ -5,7 +5,7 @@ CREATE TABLE german_climate_denormalized (
   position geo_point, -- position of the weather station
   station_height int, -- height of the weather station
   temp float, -- temperature in °C
-  humility double, -- relative humulity in percent
+  humility double, -- relative humility in percent
   cloudiness int,  -- 0 (cloudless)
                    -- 1 or less (nearly cloudless)
                    -- 2 (less cloudy)
@@ -15,13 +15,13 @@ CREATE TABLE german_climate_denormalized (
                    -- 6 (more cloudy)
                    -- 7 or more (nearly overcast)
                    -- 8 (overcast)
-                   -- -1 not availavle
+                   -- -1 not available
   rainfall_fallen boolean, -- if some precipitation happened this hour
   rainfall_height double,  -- precipitation height in mm
-  rainfall_form int, -- 0 - no precipiation
+  rainfall_form int, -- 0 - no precipitation
                      -- 1 - only "distinct" (german: "abgesetzte") precipitation
-                     -- 2 - only liquid "distinct" precipitation
-                     -- 3 - only solud "distinct" precipitation
+                     -- 2 - only liquid "distinct" precipitation (e.g. dew)
+                     -- 3 - only solid "distinct" precipitation (e.g. frost)
                      -- 6 - liquid
                      -- 7 - solid
                      -- 8 - solid and liquid
@@ -32,7 +32,7 @@ CREATE TABLE german_climate_denormalized (
   sunshine_duration double, -- sum of sunshine duration in that hour in minutes
   diffuse_sky_radiation double, -- sum of diffuse short-wave sky-radiation in J/cm² for that hour
   global_radiation double, -- sum of global short-wave radiation in J/cm² for that hour
-  sun_zenith float, -- sun zenith in degree
+  sun_zenith float, -- solar zenith angle (https://en.wikipedia.org/wiki/Solar_zenith_angle) in degree
   wind_speed double, -- wind speed in m/sec
   wind_direction int -- wind direction given in 36-part land-spout
 ) clustered by (station_id) into 12 shards with (number_of_replicas=0, refresh_interval=0);
